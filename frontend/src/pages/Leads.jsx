@@ -87,7 +87,7 @@ const Leads = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-2 gap-4">
+        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <input required placeholder="Customer Name" className="border rounded-lg px-3 py-2 text-sm" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} />
           <input required placeholder="Phone" className="border rounded-lg px-3 py-2 text-sm" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <input placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -122,7 +122,8 @@ const Leads = () => {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-navy/5 text-navy/60 text-xs uppercase tracking-wider font-semibold">
             <tr>
@@ -140,20 +141,36 @@ const Leads = () => {
                 <td className="px-4 py-3">{lead.packageInterest || '-'}</td>
                 <td className="px-4 py-3">{lead.source}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status]}`}>
-                    {lead.status}
-                  </span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status]}`}>{lead.status}</span>
                 </td>
                 <td className="px-4 py-3">{lead.assignedTo?.name || '-'}</td>
               </tr>
             ))}
             {leads.length === 0 && (
-              <tr>
-                <td colSpan={5} className="text-center text-gray-400 py-6">No leads found.</td>
-              </tr>
+              <tr><td colSpan={5} className="text-center text-gray-400 py-6">No leads found.</td></tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {leads.length === 0 && <p className="text-center text-gray-400 py-6">No leads found.</p>}
+        {leads.map((lead) => (
+          <div key={lead._id} className="bg-white rounded-xl shadow-sm border border-navy/10 p-4 cursor-pointer" onClick={() => openDetail(lead)}>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-semibold text-navy">{lead.customerName}</p>
+                <p className="text-xs text-gray-400">{lead.phone}</p>
+              </div>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${STATUS_COLORS[lead.status]}`}>{lead.status}</span>
+            </div>
+            <div className="mt-2 text-sm text-gray-600 flex flex-wrap gap-x-4 gap-y-1">
+              <span>📦 {lead.packageInterest || '-'}</span>
+              <span>📡 {lead.source}</span>
+            </div>
+          </div>
+        ))}
       </div>
 
       {selectedLead && (

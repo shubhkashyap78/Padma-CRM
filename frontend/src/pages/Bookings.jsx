@@ -100,7 +100,7 @@ const Bookings = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-2 gap-4">
+        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <input required placeholder="Customer Name" className="border rounded-lg px-3 py-2 text-sm" value={form.customerName} onChange={(e) => setForm({ ...form, customerName: e.target.value })} />
           <input required placeholder="Phone" className="border rounded-lg px-3 py-2 text-sm" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <input placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -129,7 +129,8 @@ const Bookings = () => {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-navy/5 text-navy/60 text-xs uppercase tracking-wider font-semibold">
             <tr>
@@ -159,14 +160,8 @@ const Bookings = () => {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <select
-                    value={b.status}
-                    onChange={(e) => updateStatus(b._id, e.target.value)}
-                    className={`text-xs font-medium rounded-full px-2 py-1 border-0 ${STATUS_COLORS[b.status]}`}
-                  >
-                    {Object.keys(STATUS_COLORS).map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
+                  <select value={b.status} onChange={(e) => updateStatus(b._id, e.target.value)} className={`text-xs font-medium rounded-full px-2 py-1 border-0 ${STATUS_COLORS[b.status]}`}>
+                    {Object.keys(STATUS_COLORS).map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>
                 <td className="px-4 py-3">
@@ -177,12 +172,42 @@ const Bookings = () => {
               </tr>
             ))}
             {bookings.length === 0 && (
-              <tr>
-                <td colSpan={7} className="text-center text-gray-400 py-6">No bookings found.</td>
-              </tr>
+              <tr><td colSpan={7} className="text-center text-gray-400 py-6">No bookings found.</td></tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {bookings.length === 0 && <p className="text-center text-gray-400 py-6">No bookings found.</p>}
+        {bookings.map((b) => (
+          <div key={b._id} className="bg-white rounded-xl shadow-sm border border-navy/10 p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="font-semibold text-navy">{b.customerName}</p>
+                <p className="text-xs font-mono text-gray-400">{b.bookingCode}</p>
+              </div>
+              <select value={b.status} onChange={(e) => updateStatus(b._id, e.target.value)} className={`text-xs font-medium rounded-full px-2 py-1 border-0 ${STATUS_COLORS[b.status]}`}>
+                {Object.keys(STATUS_COLORS).map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">{b.packageName}</p>
+            <div className="text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1 mb-2">
+              <span>📅 {new Date(b.startDate).toLocaleDateString('en-IN')}{b.endDate && ` - ${new Date(b.endDate).toLocaleDateString('en-IN')}`}</span>
+            </div>
+            <div className="text-xs flex gap-3 mb-2">
+              <span>Total: ₹{b.totalAmount.toLocaleString('en-IN')}</span>
+              <span>Paid: ₹{b.amountPaid.toLocaleString('en-IN')}</span>
+              <span className={b.totalAmount - b.amountPaid > 0 ? 'text-red-600 font-semibold' : 'text-green-600'}>
+                Due: ₹{(b.totalAmount - b.amountPaid).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <button onClick={() => openDetail(b)} className="text-xs text-navy underline">
+              {b.transport?.length ? `${b.transport.length} vehicle assigned` : 'Assign vehicle'}
+            </button>
+          </div>
+        ))}
       </div>
 
       {selectedBooking && (

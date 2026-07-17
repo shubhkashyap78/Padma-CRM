@@ -74,7 +74,7 @@ const Vehicles = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-2 gap-4">
+        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select className="border rounded-lg px-3 py-2 text-sm" value={form.vehicleType} onChange={(e) => setForm({ ...form, vehicleType: e.target.value })}>
             {['Sedan', 'SUV', 'Innova/Crysta', 'Tempo Traveller', 'Mini Bus', 'Bus', 'Other'].map((t) => (
               <option key={t}>{t}</option>
@@ -118,7 +118,8 @@ const Vehicles = () => {
         </select>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-navy/5 text-navy/60 text-xs uppercase tracking-wider font-semibold">
             <tr>
@@ -133,53 +134,47 @@ const Vehicles = () => {
           <tbody className="divide-y divide-gray-100">
             {vehicles.map((v) => (
               <tr key={v._id} className="hover:bg-gray-50">
+                <td className="px-4 py-3"><p className="font-medium text-navy">{v.vehicleType}</p><p className="text-xs text-gray-400">{v.vehicleNumber} · {v.capacity} seater</p></td>
+                <td className="px-4 py-3">{v.driverName || '-'}{v.driverPhone && <><br /><span className="text-xs text-gray-400">{v.driverPhone}</span></>}</td>
+                <td className="px-4 py-3">{v.ownership === 'Own Fleet' ? <span className="text-xs bg-navy/5 text-navy px-2 py-1 rounded-full">Own Fleet</span> : <>{v.vendorName || '-'}{v.vendorPhone && <><br /><span className="text-xs text-gray-400">{v.vendorPhone}</span></>}</>}</td>
+                <td className="px-4 py-3 text-xs">{v.ratePerDay ? `₹${v.ratePerDay.toLocaleString('en-IN')}/day` : ''}{v.ratePerDay && v.ratePerKm ? ' · ' : ''}{v.ratePerKm ? `₹${v.ratePerKm}/km` : ''}{!v.ratePerDay && !v.ratePerKm && '-'}</td>
                 <td className="px-4 py-3">
-                  <p className="font-medium text-navy">{v.vehicleType}</p>
-                  <p className="text-xs text-gray-400">{v.vehicleNumber} · {v.capacity} seater</p>
-                </td>
-                <td className="px-4 py-3">
-                  {v.driverName || '-'}
-                  {v.driverPhone && <><br /><span className="text-xs text-gray-400">{v.driverPhone}</span></>}
-                </td>
-                <td className="px-4 py-3">
-                  {v.ownership === 'Own Fleet' ? (
-                    <span className="text-xs bg-navy/5 text-navy px-2 py-1 rounded-full">Own Fleet</span>
-                  ) : (
-                    <>
-                      {v.vendorName || '-'}
-                      {v.vendorPhone && <><br /><span className="text-xs text-gray-400">{v.vendorPhone}</span></>}
-                    </>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-xs">
-                  {v.ratePerDay ? `₹${v.ratePerDay.toLocaleString('en-IN')}/day` : ''}
-                  {v.ratePerDay && v.ratePerKm ? ' · ' : ''}
-                  {v.ratePerKm ? `₹${v.ratePerKm}/km` : ''}
-                  {!v.ratePerDay && !v.ratePerKm && '-'}
-                </td>
-                <td className="px-4 py-3">
-                  <select
-                    value={v.status}
-                    onChange={(e) => updateStatus(v._id, e.target.value)}
-                    className={`text-xs font-medium rounded-full px-2 py-1 border-0 ${STATUS_COLORS[v.status]}`}
-                  >
-                    {Object.keys(STATUS_COLORS).map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
+                  <select value={v.status} onChange={(e) => updateStatus(v._id, e.target.value)} className={`text-xs font-medium rounded-full px-2 py-1 border-0 ${STATUS_COLORS[v.status]}`}>
+                    {Object.keys(STATUS_COLORS).map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>
-                <td className="px-4 py-3">
-                  <button onClick={() => removeVehicle(v._id)} className="text-xs text-red-600 underline">Remove</button>
-                </td>
+                <td className="px-4 py-3"><button onClick={() => removeVehicle(v._id)} className="text-xs text-red-600 underline">Remove</button></td>
               </tr>
             ))}
             {vehicles.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-center text-gray-400 py-6">No vehicles in fleet yet.</td>
-              </tr>
+              <tr><td colSpan={6} className="text-center text-gray-400 py-6">No vehicles in fleet yet.</td></tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {vehicles.length === 0 && <p className="text-center text-gray-400 py-6">No vehicles in fleet yet.</p>}
+        {vehicles.map((v) => (
+          <div key={v._id} className="bg-white rounded-xl shadow-sm border border-navy/10 p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="font-semibold text-navy">{v.vehicleType}</p>
+                <p className="text-xs text-gray-400">{v.vehicleNumber} · {v.capacity} seater</p>
+              </div>
+              <select value={v.status} onChange={(e) => updateStatus(v._id, e.target.value)} className={`text-xs font-medium rounded-full px-2 py-1 border-0 ${STATUS_COLORS[v.status]}`}>
+                {Object.keys(STATUS_COLORS).map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1 mb-2">
+              {v.driverName && <span>👤 {v.driverName} {v.driverPhone && `(${v.driverPhone})`}</span>}
+              {v.ownership === 'Own Fleet' ? <span>🏢 Own Fleet</span> : v.vendorName && <span>🤝 {v.vendorName}</span>}
+              {(v.ratePerDay || v.ratePerKm) && <span>💰 {v.ratePerDay ? `₹${v.ratePerDay}/day` : ''}{v.ratePerDay && v.ratePerKm ? ' · ' : ''}{v.ratePerKm ? `₹${v.ratePerKm}/km` : ''}</span>}
+            </div>
+            <button onClick={() => removeVehicle(v._id)} className="text-xs text-red-600 underline">Remove</button>
+          </div>
+        ))}
       </div>
     </div>
   );

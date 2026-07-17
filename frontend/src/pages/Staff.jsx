@@ -53,7 +53,7 @@ const Staff = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-2 gap-4">
+        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {error && <p className="col-span-2 text-red-600 text-sm">{error}</p>}
           <input required placeholder="Full Name" className="border rounded-lg px-3 py-2 text-sm" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
           <input required type="email" placeholder="Email" className="border rounded-lg px-3 py-2 text-sm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
@@ -69,7 +69,8 @@ const Staff = () => {
         </form>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-navy/5 text-navy/60 text-xs uppercase tracking-wider font-semibold">
             <tr>
@@ -92,17 +93,37 @@ const Staff = () => {
                   </span>
                 </td>
                 <td className="px-4 py-3 space-x-2">
-                  <button onClick={() => toggleActive(s)} className="text-xs text-navy underline">
-                    {s.isActive ? 'Deactivate' : 'Activate'}
-                  </button>
-                  <button onClick={() => removeStaff(s._id)} className="text-xs text-red-600 underline">
-                    Remove
-                  </button>
+                  <button onClick={() => toggleActive(s)} className="text-xs text-navy underline">{s.isActive ? 'Deactivate' : 'Activate'}</button>
+                  <button onClick={() => removeStaff(s._id)} className="text-xs text-red-600 underline">Remove</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {staff.map((s) => (
+          <div key={s._id} className="bg-white rounded-xl shadow-sm border border-navy/10 p-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-semibold text-navy">{s.name}</p>
+                <p className="text-xs text-gray-500">{s.email}</p>
+              </div>
+              <span className={`px-2 py-1 rounded-full text-xs ${s.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                {s.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            <div className="mt-2 flex items-center justify-between">
+              <span className="text-xs capitalize text-gray-500">{s.role}</span>
+              <div className="space-x-3">
+                <button onClick={() => toggleActive(s)} className="text-xs text-navy underline">{s.isActive ? 'Deactivate' : 'Activate'}</button>
+                <button onClick={() => removeStaff(s._id)} className="text-xs text-red-600 underline">Remove</button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

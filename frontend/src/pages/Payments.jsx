@@ -38,7 +38,7 @@ const Payments = () => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-2 gap-4">
+        <form onSubmit={handleCreate} className="bg-white rounded-2xl shadow-sm border border-navy/10 p-6 mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select required className="border rounded-lg px-3 py-2 text-sm col-span-2" value={form.booking} onChange={(e) => setForm({ ...form, booking: e.target.value })}>
             <option value="">Select Booking</option>
             {bookings.map((b) => (
@@ -61,7 +61,8 @@ const Payments = () => {
         </form>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
+      {/* Desktop table */}
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-navy/10 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-navy/5 text-navy/60 text-xs uppercase tracking-wider font-semibold">
             <tr>
@@ -85,12 +86,31 @@ const Payments = () => {
               </tr>
             ))}
             {payments.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-center text-gray-400 py-6">No payments recorded yet.</td>
-              </tr>
+              <tr><td colSpan={6} className="text-center text-gray-400 py-6">No payments recorded yet.</td></tr>
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {payments.length === 0 && <p className="text-center text-gray-400 py-6">No payments recorded yet.</p>}
+        {payments.map((p) => (
+          <div key={p._id} className="bg-white rounded-xl shadow-sm border border-navy/10 p-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-semibold text-navy">₹{p.amount.toLocaleString('en-IN')}</p>
+                <p className="text-xs text-gray-500">{p.booking?.bookingCode} · {p.booking?.customerName}</p>
+              </div>
+              <span className="text-xs bg-navy/5 text-navy px-2 py-1 rounded-full">{p.mode}</span>
+            </div>
+            <div className="mt-2 text-xs text-gray-400 flex gap-3">
+              <span>{new Date(p.paidOn).toLocaleDateString('en-IN')}</span>
+              {p.referenceNumber && <span>Ref: {p.referenceNumber}</span>}
+              {p.recordedBy?.name && <span>By: {p.recordedBy.name}</span>}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
