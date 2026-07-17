@@ -14,9 +14,13 @@ import quotationRoutes from './routes/quotations.js';
 import vehicleRoutes from './routes/vehicles.js';
 
 dotenv.config();
-connectDB();
 
 const app = express();
+
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 const allowedOrigins = (process.env.CLIENT_URL || '').split(',').map(o => o.trim());
 app.use(cors({
